@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DataAccess.Context;
+using Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +8,23 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
 {
-    internal class FlightDBRepository
+    public class FlightDBRepository
     {
+        private AirlineDbContext _db;
+        public FlightDBRepository(AirlineDbContext db) 
+        { 
+            _db= db;
+        }
+
+        public IQueryable<Flight> GetFlights() 
+        { 
+            return _db.Flights;
+        }
+
+        public Flight? GetFlightById(int id)
+        {
+            return  _db.Flights.SingleOrDefault(x => x.Id == id);
+        }
+
     }
 }
