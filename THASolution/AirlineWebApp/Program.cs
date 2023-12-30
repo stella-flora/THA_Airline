@@ -1,4 +1,5 @@
 using AirlineWebApp.Data;
+using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,9 @@ namespace AirlineWebApp
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddScoped(typeof(FlightDBRepository));
+            builder.Services.AddScoped(typeof(TicketDBRepository));
 
             var app = builder.Build();
 

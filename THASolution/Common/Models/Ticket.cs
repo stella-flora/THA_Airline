@@ -12,8 +12,8 @@ namespace Domain.Models
     {
         [Key]
         public int Id { get; set; }
-        public string Row { get; set; }
-        public string Column { get; set; }
+        public int Row { get; set; }
+        public int Column { get; set; }
 
         [ForeignKey("Flight")]
         public int FlightdIdFK {get; set;}

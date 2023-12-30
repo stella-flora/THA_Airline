@@ -12,6 +12,11 @@ namespace DataAccess.Repositories
     {
 
         private AirlineDbContext _db;
+
+        public TicketDBRepository()
+        {
+        }
+
         public TicketDBRepository(AirlineDbContext db) 
         {
             _db = db;
@@ -19,23 +24,30 @@ namespace DataAccess.Repositories
 
         public void Book(Ticket t) 
         {
-            //if ticket.id not booked
-            // ? = if ticket.id does not exist in gettickets()
-            //then add ticket
-            //
-            //else
-            // seat already booked
+            bool isBooked = _db.Tickets.Any(ticket => ticket.Id == t.Id);
+            if (isBooked)
+            {
+                throw new Exception("Ticket is already booked.");
+            }
+            else
+            {
+                _db.Tickets.Add(t);
+                _db.SaveChanges();
+            }
         }
 
-        public void Cancel(Ticket t) 
-        { 
-            Ticket myTicket = t;
-            //where id = myTicket.id
-            //check if ticket.id is in gettickets()
-            //then myTicket.cancelled = true;
-            //else ticket not found
-
-
+        public void Cancel(int ticketId) 
+        {
+            Ticket ticket = _db.Tickets.SingleOrDefault(t => t.Id == ticketId);
+            if (ticket != null)
+            {
+                ticket.Cancelled = true;
+                _db.SaveChanges();
+            }
+            else
+            {
+                throw new Exception("Ticket was not found.");
+            }
         }
 
         public IQueryable<Ticket> GetTickets()

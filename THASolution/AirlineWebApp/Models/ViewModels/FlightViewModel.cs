@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Models
+﻿namespace Presentation.Models.ViewModels
 {
-    public class Flight
+    public class FlightViewModel
     {
-
-        [Key]
         public int Id { get; set; }
         public int Rows { get; set; }
         public int Columns { get; set; }
@@ -20,5 +11,6 @@ namespace Domain.Models
         public string CountryTo { get; set; }
         public double WholesalePrice { get; set; }
         public double ComissionRate { get; set; }
+        public double RetailPrice { get; set; }
     }
 }
