@@ -1,4 +1,5 @@
 ﻿using DataAccess.Repositories;
+using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.ViewModels;
@@ -8,8 +9,8 @@ namespace Presentation.Controllers
     public class TicketsController : Controller
     {
         private  FlightDBRepository _fRepo;
-        private  TicketDBRepository _tRepo;
-        public TicketsController(FlightDBRepository fRepo, TicketDBRepository tRepo)
+        private  ITicketRepository _tRepo;
+        public TicketsController(FlightDBRepository fRepo, ITicketRepository tRepo)
         {
             _fRepo = fRepo;
             _tRepo = tRepo;
@@ -67,11 +68,11 @@ namespace Presentation.Controllers
         {
             try
             {
+                var flight = _fRepo.GetFlightById(model.FlightdIdFK);
                 var foundTicket = _tRepo.GetTickets().SingleOrDefault(x => x.Passport == model.Passport);
                 if (foundTicket == null || model.Cancelled == true)
                 {
-                    var flight = _fRepo.GetFlightById(model.FlightdIdFK);
-
+                    
                     if (flight.DepartureDate > DateTime.Now)
                     {
                         string relativePath = "";
@@ -100,7 +101,7 @@ namespace Presentation.Controllers
 
                         }
 
-                      
+
 
                         _tRepo.Book(new Ticket()
                         {
@@ -108,9 +109,9 @@ namespace Presentation.Controllers
                             Row = model.Row,
                             Column = model.Column,
                             FlightdIdFK = model.FlightdIdFK,
-                            Passport = model.Passport,
-                            PricePaid = model.PricePaid, //flight.WholesalePrice + (flight.WholesalePrice * flight.ComissionRate)
+                            PricePaid = flight.WholesalePrice + (flight.WholesalePrice * flight.ComissionRate), //model.PricePaid,
                             Cancelled = model.Cancelled,
+                            Passport = model.Passport,
                             Image = relativePath
                         });
 
@@ -137,6 +138,7 @@ namespace Presentation.Controllers
             catch
             {
                 TempData["error"] = "Booking failed.";
+                model.Flights = _fRepo.GetFlights().ToList();
                 return View(model);
             }
 
@@ -149,6 +151,19 @@ namespace Presentation.Controllers
             TicketViewModel ticketViewModel = new TicketViewModel();
 
             var list = _tRepo.GetTickets().ToList();
+
+
+            ////Price Paid
+            //var flights = _fRepo.GetFlights().ToList();
+            ////flight.WholesalePrice + (flight.WholesalePrice * flight.ComissionRate)
+
+            //var pricePaid = from flight in flights
+            //             select new TicketViewModel()
+            //             {
+            //                 PricePaid = flight.WholesalePrice + (flight.WholesalePrice * flight.ComissionRate)
+            //             };
+
+
 
             var result = from t in list
                          select new TicketViewModel()

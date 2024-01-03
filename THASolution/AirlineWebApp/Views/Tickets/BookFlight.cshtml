@@ -44,7 +44,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="PricePaid" class="control-label"></label>
-                <p>€ @Model.PricePaid</p>
+                <p value="@Model.PricePaid">€ @Model.PricePaid</p>
                 <span asp-validation-for="PricePaid" class="text-danger"></span>
             </div>
             <div class="form-group form-check">

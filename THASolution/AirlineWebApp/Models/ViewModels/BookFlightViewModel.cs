@@ -25,7 +25,6 @@ namespace Presentation.Models.ViewModels
         public string Passport { get; set; }
 
         [DisplayName("Price Paid")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Price has to be a positive value")]
         public double PricePaid { get; set; }
 
         [DisplayName("Cancelled")]

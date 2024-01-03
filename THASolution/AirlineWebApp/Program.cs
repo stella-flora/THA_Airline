@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using DataAccess.Context;
 using DataAccess.Repositories;
 using Domain.Models;
+using Domain.Interfaces;
 
 namespace AirlineWebApp
 {
@@ -24,9 +25,12 @@ namespace AirlineWebApp
                 .AddEntityFrameworkStores<AirlineDbContext>();
             builder.Services.AddControllersWithViews();
 
+            var absolutePath = builder.Environment.ContentRootPath + "Data\\tickets.json";
+            builder.Services.AddScoped<ITicketRepository, TicketFileRepository>(x => new TicketFileRepository(absolutePath));
+            //builder.Services.AddScoped(typeof(TicketDBRepository));
             builder.Services.AddScoped(typeof(FlightDBRepository));
-            builder.Services.AddScoped(typeof(TicketDBRepository));
-
+            
+            // builder.Services.AddScoped(typeof(TicketDBRepository));
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
