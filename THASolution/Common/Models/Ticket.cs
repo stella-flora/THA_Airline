@@ -10,7 +10,7 @@ namespace Domain.Models
 {
     public class Ticket
     {
-        [Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int Row { get; set; }
         public int Column { get; set; }
@@ -21,5 +21,8 @@ namespace Domain.Models
         public string Passport { get; set; }
         public double PricePaid { get; set; }
         public bool Cancelled { get; set; }
+
+        public string? Image { get; set; }
+
     }
 }

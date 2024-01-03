@@ -21,7 +21,7 @@ namespace Presentation.Controllers
             return View();
         }
 
-        public IActionResult GetRetailFlights()
+        public IActionResult RetailFlights()
         {
             FlightViewModel flightViewModel = new FlightViewModel();
 
@@ -40,51 +40,111 @@ namespace Presentation.Controllers
             var result = from flight in retailFlights
                          select new FlightViewModel()
                          {
-                             Id = flightViewModel.Id,
-                             CountryFrom = flightViewModel.CountryFrom,
-                             CountryTo = flightViewModel.CountryTo,
-                             DepartureDate = flightViewModel.DepartureDate,
-                             ArrivalDate = flightViewModel.ArrivalDate,
-                             RetailPrice = flightViewModel.WholesalePrice + (flightViewModel.WholesalePrice * flightViewModel.ComissionRate)
+                             Id = flight.Id,
+                             CountryFrom = flight.CountryFrom,
+                             CountryTo = flight.CountryTo,
+                             DepartureDate = flight.DepartureDate,
+                             ArrivalDate = flight.ArrivalDate,
+                             RetailPrice = flight.WholesalePrice + (flight.WholesalePrice * flight.ComissionRate)
                          };
 
             return View(result);
         }
 
         [HttpGet]
-        public IActionResult BookFlight(){ return View();}
-
-        [HttpPost]
-        public IActionResult BookFlight(BookFlightViewModel model)
+        public IActionResult BookFlight()
         {
-            var foundTicket = _tRepo.GetTickets().SingleOrDefault(x => x.Passport == model.Passport);
-            if (foundTicket == null || model.Cancelled == true)
-            {
-                var flight = _fRepo.GetFlightById(model.FlightdIdFK);
-                   
-                if (flight.DepartureDate > DateTime.Now)
-                {
-                    _tRepo.Book(new Ticket()
-                    {
-                        Id = model.Id,
-                        Row = model.Row,
-                        Column = model.Column,
-                        FlightdIdFK = model.FlightdIdFK,
-                        Passport = model.Passport,
-                        PricePaid = flight.WholesalePrice + (flight.WholesalePrice * flight.ComissionRate),
-                        Cancelled = model.Cancelled
-                    });
-                }
-            }
-            else
-            {
-                throw new Exception("Ticket is not available or already booked");
-            }
-                
+            BookFlightViewModel model = new BookFlightViewModel();
+
+            model.Flights = _fRepo.GetFlights().ToList();
+
             return View(model);
+        
         }
 
-        public IActionResult GetTicketHistory()
+        [HttpPost]
+        public IActionResult BookFlight(BookFlightViewModel model, [FromServices] IWebHostEnvironment host)
+        {
+            try
+            {
+                var foundTicket = _tRepo.GetTickets().SingleOrDefault(x => x.Passport == model.Passport);
+                if (foundTicket == null || model.Cancelled == true)
+                {
+                    var flight = _fRepo.GetFlightById(model.FlightdIdFK);
+
+                    if (flight.DepartureDate > DateTime.Now)
+                    {
+                        string relativePath = "";
+
+                        if (model.ImageFile != null)
+                        {
+
+                            string newPassportName = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(model.ImageFile.FileName);
+
+                            string absolutePath = host.WebRootPath + "\\images\\" + newPassportName;
+
+                            relativePath = "/images/" + newPassportName;
+
+                            try
+                            {
+                                using (FileStream fs = new FileStream(absolutePath, FileMode.OpenOrCreate))
+                                {
+                                    model.ImageFile.CopyTo(fs);
+                                    fs.Flush();
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                throw;
+                            }
+
+                        }
+
+                      
+
+                        _tRepo.Book(new Ticket()
+                        {
+                            Id = model.Id,
+                            Row = model.Row,
+                            Column = model.Column,
+                            FlightdIdFK = model.FlightdIdFK,
+                            Passport = model.Passport,
+                            PricePaid = model.PricePaid, //flight.WholesalePrice + (flight.WholesalePrice * flight.ComissionRate)
+                            Cancelled = model.Cancelled,
+                            Image = relativePath
+                        });
+
+                        if (relativePath == "")
+                        {
+                            TempData["message"] = "Passport Image was NOT uploaded, but Booking was successful.";
+                        }
+                        else
+                        {
+                            TempData["message"] = "Passport Image was uploaded and Booking  was successful.";
+                        }
+
+                        return RedirectToAction("RetailFlights");
+
+                       
+                    }
+                }
+                else
+                {
+                    TempData["error"] = "Booking failed: Ticket is not available or already booked";
+                    return View(model);
+                }
+            }
+            catch
+            {
+                TempData["error"] = "Booking failed.";
+                return View(model);
+            }
+
+            return View(model);
+            
+        }
+
+        public IActionResult TicketHistory()
         {
             TicketViewModel ticketViewModel = new TicketViewModel();
 
@@ -93,12 +153,14 @@ namespace Presentation.Controllers
             var result = from t in list
                          select new TicketViewModel()
                          {
-                             Id = ticketViewModel.Id,
-                             Row = ticketViewModel.Row,
-                             Column = ticketViewModel.Column,
-                             FlightdIdFK = ticketViewModel.FlightdIdFK,
-                             PricePaid = ticketViewModel.PricePaid,
-                             Cancelled = ticketViewModel.Cancelled
+                             Id = t.Id,
+                             Row = t.Row,
+                             Column = t.Column,
+                             FlightdIdFK = t.FlightdIdFK,
+                             PricePaid = t.PricePaid,
+                             Cancelled = t.Cancelled,
+                             Passport = t.Passport,
+                             Image = t.Image
                          };
             
 

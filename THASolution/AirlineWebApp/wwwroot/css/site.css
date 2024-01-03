@@ -16,3 +16,11 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+img {
+    text-align: center;
+    width: 100px;
+    height: 100px;
+    margin: auto;
+    display: block;
+}

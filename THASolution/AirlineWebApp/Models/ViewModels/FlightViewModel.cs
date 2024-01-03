@@ -1,16 +1,25 @@
-﻿namespace Presentation.Models.ViewModels
+﻿using System.ComponentModel;
+
+namespace Presentation.Models.ViewModels
 {
     public class FlightViewModel
     {
+        [DisplayName("ID")]
         public int Id { get; set; }
-        public int Rows { get; set; }
-        public int Columns { get; set; }
+
+        [DisplayName("Departure Date")]
         public DateTime DepartureDate { get; set; }
+
+        [DisplayName("Arrival Date")]
         public DateTime ArrivalDate { get; set; }
+
+        [DisplayName("Country From")]
         public string CountryFrom { get; set; }
+
+        [DisplayName("Country To")]
         public string CountryTo { get; set; }
-        public double WholesalePrice { get; set; }
-        public double ComissionRate { get; set; }
+
+        [DisplayName(" Price")]
         public double RetailPrice { get; set; }
     }
 }
