@@ -109,7 +109,7 @@ namespace Presentation.Controllers
                             Row = model.Row,
                             Column = model.Column,
                             FlightdIdFK = model.FlightdIdFK,
-                            PricePaid = model.PricePaid, //foundFlight.WholesalePrice + (foundFlight.WholesalePrice * foundFlight.ComissionRate), 
+                            PricePaid = foundFlight.WholesalePrice + (foundFlight.WholesalePrice * foundFlight.ComissionRate), //model.PricePaid,
                             Cancelled = model.Cancelled,
                             Passport = model.Passport,
                             Image = relativePath
@@ -153,18 +153,6 @@ namespace Presentation.Controllers
             TicketViewModel ticketViewModel = new TicketViewModel();
 
             var list = _tRepo.GetTickets().ToList();
-
-
-            ////Price Paid
-            //var flights = _fRepo.GetFlights().ToList();
-            ////flight.WholesalePrice + (flight.WholesalePrice * flight.ComissionRate)
-
-            //var pricePaid = from flight in flights
-            //             select new TicketViewModel()
-            //             {
-            //                 PricePaid = flight.WholesalePrice + (flight.WholesalePrice * flight.ComissionRate)
-            //             };
-
 
 
             var result = from t in list

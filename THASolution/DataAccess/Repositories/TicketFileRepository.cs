@@ -50,7 +50,18 @@ namespace DataAccess.Repositories
 
         public void Cancel(int ticketId)
         {
-            throw new NotImplementedException();
+            var list = GetTickets().ToList();
+            Ticket ticket = list.SingleOrDefault(t => t.Id == ticketId);
+            if (ticket != null)
+            {
+                ticket.Cancelled = true;
+                string ticketsJsonString = JsonSerializer.Serialize(list);
+                System.IO.File.WriteAllText(_path, ticketsJsonString);
+            }
+            else
+            {
+                throw new Exception("Ticket was not found.");
+            }
         }
 
         public IQueryable<Ticket> GetTickets()
