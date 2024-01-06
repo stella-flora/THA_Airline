@@ -57,7 +57,7 @@ namespace Presentation.Controllers
         {
             BookFlightViewModel model = new BookFlightViewModel();
 
-            model.Flights = _fRepo.GetFlights().ToList();
+            model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
 
             return View(model);
         
@@ -68,12 +68,13 @@ namespace Presentation.Controllers
         {
             try
             {
-                var flight = _fRepo.GetFlightById(model.FlightdIdFK);
                 var foundTicket = _tRepo.GetTickets().SingleOrDefault(x => x.Passport == model.Passport);
+                var foundFlight = _fRepo.GetFlightById(model.FlightdIdFK);
                 if (foundTicket == null || model.Cancelled == true)
                 {
                     
-                    if (flight.DepartureDate > DateTime.Now)
+
+                    if (foundFlight.DepartureDate > DateTime.Now)
                     {
                         string relativePath = "";
 
@@ -105,11 +106,10 @@ namespace Presentation.Controllers
 
                         _tRepo.Book(new Ticket()
                         {
-                            Id = model.Id,
                             Row = model.Row,
                             Column = model.Column,
                             FlightdIdFK = model.FlightdIdFK,
-                            PricePaid = flight.WholesalePrice + (flight.WholesalePrice * flight.ComissionRate), //model.PricePaid,
+                            PricePaid = model.PricePaid, //foundFlight.WholesalePrice + (foundFlight.WholesalePrice * foundFlight.ComissionRate), 
                             Cancelled = model.Cancelled,
                             Passport = model.Passport,
                             Image = relativePath
@@ -132,16 +132,18 @@ namespace Presentation.Controllers
                 else
                 {
                     TempData["error"] = "Booking failed: Ticket is not available or already booked";
+                    model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
                     return View(model);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                TempData["error"] = "Booking failed.";
-                model.Flights = _fRepo.GetFlights().ToList();
+                TempData["error"] = "Booking failed." + ex ;
+                model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
                 return View(model);
             }
 
+            model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
             return View(model);
             
         }

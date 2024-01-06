@@ -27,7 +27,7 @@
                 <select name="FlightdIdFK" class="form-select">
                     @foreach (var flight in Model.Flights)
                     {
-                            <option value="@flight.Id">@flight.Id</option>
+                        <option value="@flight.Id">@flight.Id</option>
                     }
                 </select>
                 <span asp-validation-for="FlightdIdFK" class="text-danger"></span>

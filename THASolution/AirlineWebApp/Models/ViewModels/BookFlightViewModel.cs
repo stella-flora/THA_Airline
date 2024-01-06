@@ -9,8 +9,6 @@ namespace Presentation.Models.ViewModels
     {
         public List<Flight> Flights { get; set; }
 
-        [DisplayName("ID")]
-        public int Id { get; set; }
 
         [DisplayName("Row")]
         public int Row { get; set; }

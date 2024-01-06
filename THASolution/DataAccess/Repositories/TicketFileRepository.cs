@@ -34,16 +34,17 @@ namespace DataAccess.Repositories
         {
             var list = GetTickets().ToList();
             t.Id = list.Count + 1;
-            bool isBooked = list.Any(ticket => t.Id == t.Id);
-            if (isBooked)
-            {
-                throw new Exception("Ticket is already booked.");
-            }
-            else
+            var foundTicket = list.SingleOrDefault(x => x.FlightdIdFK == t.FlightdIdFK && x.Row == t.Row && x.Column == t.Column);
+            if (foundTicket == null)
             {
                 list.Add(t);
                 string ticketsJsonString = JsonSerializer.Serialize(list);
                 System.IO.File.WriteAllText(_path, ticketsJsonString);
+
+            }
+            else
+            {
+                throw new Exception("Ticket is already booked.");
             }
         }
 

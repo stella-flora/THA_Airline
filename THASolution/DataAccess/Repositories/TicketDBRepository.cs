@@ -23,17 +23,18 @@ namespace DataAccess.Repositories
             _db = db;
         }
 
-        public void Book(Ticket t) 
-        {
-            bool isBooked = _db.Tickets.Any(ticket => ticket.Id == t.Id);
-            if (isBooked)
-            {
-                throw new Exception("Ticket is already booked.");
-            }
-            else
+        public void Book(Ticket t)
+        { 
+            var foundTicket = _db.Tickets.SingleOrDefault(x => x.FlightdIdFK == t.FlightdIdFK && x.Row == t.Row && x.Column == t.Column);
+            if (foundTicket == null)
             {
                 _db.Tickets.Add(t);
                 _db.SaveChanges();
+                
+            }
+            else
+            {
+                throw new Exception("Ticket is already booked.");
             }
         }
 
