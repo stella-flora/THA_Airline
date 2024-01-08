@@ -4,6 +4,7 @@
     ViewData["Title"] = "RetailFlights";
 }
 
+
 <h1>Flights</h1>
 
 <br/>
@@ -55,8 +56,16 @@
                 @Html.DisplayFor(modelItem => item.RetailPrice)
             </td>
             <td>
-                @Html.ActionLink("Book", "BookFlight", new { id = item.Id  }) |
-                @Html.ActionLink("Details", "Details", new { id = item.Id })
+                @Html.ActionLink("Book", "BookFlight", new { id = item.Id  }) 
+
+                @*@if (User.Identity.IsAuthenticated)
+                {
+                        if (User.Identity.Name == "Admin@gmail.com")
+                        {
+                            @Html.ActionLink("| Details", "Details", new { id = item.Id })
+                        }
+
+                }*@
             </td>
         </tr>
 }

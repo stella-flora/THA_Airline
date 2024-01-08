@@ -80,7 +80,7 @@ namespace DataAccess.Repositories
             }
             else
             {
-                //Deserialization: json string into a List<Ticket>
+                //Deserialization: json string into a List<Ticket> object
                 List<Ticket> Tickets = JsonSerializer.Deserialize<List<Ticket>>(ticketsAsJson);
                 return Tickets.AsQueryable();
             }

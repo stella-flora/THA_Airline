@@ -1,8 +1,10 @@
 ﻿using DataAccess.Repositories;
 using Domain.Interfaces;
 using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.ViewModels;
+using System.Collections.Generic;
 
 namespace Presentation.Controllers
 {
@@ -53,11 +55,20 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult BookFlight()
+        public IActionResult BookFlight(int id)
         {
             BookFlightViewModel model = new BookFlightViewModel();
 
-            model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
+            //model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
+
+            model.Flight = _fRepo.GetFlightById(id);
+
+
+            //var foundFlight = _fRepo.GetFlightById(model.FlightdIdFK);
+            model.PricePaid = model.Flight.WholesalePrice + (model.Flight.WholesalePrice * model.Flight.ComissionRate);
+
+            model.FlightdIdFK = id;
+
 
             return View(model);
         
@@ -68,7 +79,8 @@ namespace Presentation.Controllers
         {
             try
             {
-                var foundTicket = _tRepo.GetTickets().SingleOrDefault(x => x.Passport == model.Passport);
+                //if a ticket of a flight with same seat (row + column)
+                var foundTicket = _tRepo.GetTickets().SingleOrDefault(x => x.FlightdIdFK == model.FlightdIdFK && x.Row == model.Row && x.Column == model.Column);
                 var foundFlight = _fRepo.GetFlightById(model.FlightdIdFK);
                 if (foundTicket == null || model.Cancelled == true)
                 {
@@ -106,6 +118,7 @@ namespace Presentation.Controllers
 
                         _tRepo.Book(new Ticket()
                         {
+                            UserEmail = User.Identity.Name,
                             Row = model.Row,
                             Column = model.Column,
                             FlightdIdFK = model.FlightdIdFK,
@@ -113,15 +126,16 @@ namespace Presentation.Controllers
                             Cancelled = model.Cancelled,
                             Passport = model.Passport,
                             Image = relativePath
+
                         });
 
                         if (relativePath == "")
                         {
-                            TempData["message"] = "Passport Image was NOT uploaded, but Booking was successful.";
+                            TempData["message"] = "Passport Image was NOT uploaded, but Booking was successful";
                         }
                         else
                         {
-                            TempData["message"] = "Passport Image was uploaded and Booking  was successful.";
+                            TempData["message"] = "Passport Image was uploaded and Booking  was successful";
                         }
 
                         return RedirectToAction("RetailFlights");
@@ -132,32 +146,35 @@ namespace Presentation.Controllers
                 else
                 {
                     TempData["error"] = "Booking failed: Ticket is not available or already booked";
-                    model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
+                    //model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
                     return View(model);
                 }
             }
             catch (Exception ex)
             {
-                TempData["error"] = "Booking failed." + ex ;
-                model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
+                TempData["error"] = "Booking failed. " + ex.Message ;
+                //model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
                 return View(model);
             }
 
-            model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
+            //model.Flights = _fRepo.GetFlights().ToList().Where(x => x.DepartureDate > DateTime.Now).OrderBy(x => x.DepartureDate).ToList();
             return View(model);
             
         }
 
+        [Authorize]
         public IActionResult TicketHistory()
         {
             TicketViewModel ticketViewModel = new TicketViewModel();
 
-            var list = _tRepo.GetTickets().ToList();
+            //where UserEmail is User.Identity.Name (logged in user)
+            var list = _tRepo.GetTickets().Where(x => x.UserEmail == User.Identity.Name).ToList();
 
 
             var result = from t in list
                          select new TicketViewModel()
                          {
+                             UserEmail = t.UserEmail,
                              Id = t.Id,
                              Row = t.Row,
                              Column = t.Column,

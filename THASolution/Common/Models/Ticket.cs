@@ -24,5 +24,7 @@ namespace Domain.Models
 
         public string? Image { get; set; }
 
+        public string? UserEmail { get; set; }
+
     }
 }

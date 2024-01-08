@@ -14,10 +14,6 @@ namespace DataAccess.Repositories
 
         private AirlineDbContext _db;
 
-        public TicketDBRepository()
-        {
-        }
-
         public TicketDBRepository(AirlineDbContext db) 
         {
             _db = db;

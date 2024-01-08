@@ -59,9 +59,22 @@
             </td>
             
             @*<td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                if (User.Identity.Name == Model.OwnerEmail)
+                {
+            Html.ActionLink("Details |", "Details", new { id = Model.Id })
+                    Html.ActionLink("Edit |", "Edit", new { id = Model.Id });
+                }
+                else if (User.Identity.Name == Model.OwnerEmail)
+                {
+                    Html.ActionLink("Details |", "Details", new { id = Model.Id })
+                    Html.ActionLink("Delete |", "Delete", new { id = Model.Id });
+                }
+
+            }
+            
             </td>*@
         </tr>
 }

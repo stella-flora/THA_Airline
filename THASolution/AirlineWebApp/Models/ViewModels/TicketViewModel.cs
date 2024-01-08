@@ -20,7 +20,9 @@ namespace Presentation.Models.ViewModels
         public string? Image { get; set; }
         
         public bool Cancelled { get; set; }
-        
+
+        public string UserEmail { get; set; }
+
 
     }
 }
